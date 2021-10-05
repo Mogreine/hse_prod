@@ -16,7 +16,7 @@ def read_data(path: str) -> Tuple[np.ndarray, np.ndarray]:
             p = line.strip().split()
             xs.append(int(p[0]))
             ys.append(int(p[1]))
-            
+
     assert len(xs) >= 9, "Arrays' lengths should be at least 9"
 
     return np.array(xs), np.array(ys)
@@ -48,8 +48,8 @@ def save_result(path: str, diff: int, std: int, conj: float) -> None:
 
 if __name__ == "__main__":
     args = ArgumentParser()
-    args.add_argument("--input_file", "-i", type=str, required=True)
-    args.add_argument("--output_file", "-o", type=str, required=True)
+    args.add_argument("--input_file", "-i", type=str, required=True, help="Path to the input file with data.")
+    args.add_argument("--output_file", "-o", type=str, required=True, help="Path to the output file with results.")
 
     args = args.parse_args()
 
