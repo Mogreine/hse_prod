@@ -9,7 +9,7 @@ pip install -r requirements.txt
 ## Usage
 To run monotonic conjugation check run from the project's root:
 ```
-python src/spellcheck.py --word wird -n_suggestions 3
+python src/spellcheck.py --word appreceiated -n_suggestions 3
 ```
 
 You may also run
