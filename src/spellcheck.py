@@ -1,9 +1,9 @@
 import numpy as np
 
 from typing import List
+from argparse import ArgumentParser
 from spylls.hunspell import Dictionary
-from functools import partial
-from textdistance import hamming, needleman_wunsch, damerau_levenshtein, jaro
+from textdistance import hamming, needleman_wunsch, damerau_levenshtein, jaro, editex, mra
 
 
 class SpellChecker:
@@ -11,12 +11,11 @@ class SpellChecker:
         self.dictionary = Dictionary.from_files("en_US")
         self.distances = [
             damerau_levenshtein.normalized_distance,
-            jaro.normalized_distance,
-            hamming.normalized_distance,
-            needleman_wunsch.normalized_distance
+            needleman_wunsch.normalized_distance,
+            editex.normalized_distance,
         ]
 
-    def _get_candidates(self, word: str, n_candidates: int) -> List[str]:
+    def _get_candidates(self, word: str, n_candidates: int = None) -> List[str]:
         return list(self.dictionary.suggest(word))[:n_candidates]
 
     def _calc_features(self, word: str, candidates: List[str]) -> np.ndarray:
@@ -31,8 +30,8 @@ class SpellChecker:
         return res
 
     def get_suggestions(self, word: str, n_candidates: int = 5) -> List[str]:
-        candidates = self._get_candidates(word, n_candidates)
-        return self._rank_candidates(word, candidates)
+        candidates = self._get_candidates(word)
+        return self._rank_candidates(word, candidates)[:n_candidates]
 
     def fix(self, word: str) -> str:
         if self.dictionary.lookup(word):
@@ -41,18 +40,22 @@ class SpellChecker:
             return self._get_candidates(word, 1)[0]
 
 
-def main():
-    wrong_word = "sammer"
+def main(word: str, n_candidates: int):
     checker = SpellChecker()
+    candidates = checker.get_suggestions(word, n_candidates)
 
-    candidates = checker.get_suggestions(wrong_word, 5)
-
-    print(f"Word: {wrong_word}")
+    print(f"Word: {word}")
     print(f"Candidates: ")
 
-    for w in candidates:
-        print(f"\t{w}")
+    for idx, w in enumerate(candidates):
+        print(f"{idx + 1}. {w}")
 
 
 if __name__ == "__main__":
-    main()
+    args = ArgumentParser()
+    args.add_argument("--word", "-w", type=str, help="Word to be checked")
+    args.add_argument("--n_suggestions", "-n", type=int, default=1, help="The number of suggestions to be shown")
+
+    args = args.parse_args()
+
+    main(args.word, args.n_suggestions)
