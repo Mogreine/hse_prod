@@ -18,13 +18,16 @@ class SpellChecker:
         ]
 
     def _get_candidates(self, word: str, n_candidates: int = None) -> List[str]:
-        return list(self.dictionary.suggest(word))[:n_candidates]
+        return list(self.dictionary.suggester.ngram_suggestions(word, set()))[:n_candidates]
 
     def _calc_features(self, word: str, candidates: List[str]) -> np.ndarray:
         features = np.array([[dist(word, c) for dist in self.distances] for c in candidates])
         return features
 
     def _rank_candidates(self, word: str, candidates: List[str]) -> List[str]:
+        if len(candidates) == 0:
+            return [""]
+
         features = self._calc_features(word, candidates)
         c_idx_sorted = np.mean(features, axis=1).argsort()
         res = [candidates[idx] for idx in c_idx_sorted]
@@ -55,7 +58,7 @@ def main(word: str, n_candidates: int):
 
 if __name__ == "__main__":
     args = ArgumentParser()
-    args.add_argument("--word", "-w", type=str, help="Word to be checked")
+    args.add_argument("--word", "-w", type=str, required=True, help="Word to be checked")
     args.add_argument("--n_suggestions", "-n", type=int, default=1, help="The number of suggestions to be shown")
 
     args = args.parse_args()
