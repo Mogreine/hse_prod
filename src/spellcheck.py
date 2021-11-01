@@ -13,6 +13,8 @@ class SpellChecker:
             damerau_levenshtein.normalized_distance,
             needleman_wunsch.normalized_distance,
             editex.normalized_distance,
+            hamming.normalized_distance,
+            jaro.normalized_distance,
         ]
 
     def _get_candidates(self, word: str, n_candidates: int = None) -> List[str]:
